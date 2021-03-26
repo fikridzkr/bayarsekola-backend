@@ -10,3 +10,8 @@ const db = mysql.createConnection({
   password: "",
   database: "bayarsekola",
 });
+
+app.listen(3001),
+  () => {
+    console.log("server running");
+  };
