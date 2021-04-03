@@ -11,6 +11,7 @@ const multer = require("multer");
 const upload = multer();
 const fs = require("fs");
 const { promisify } = require("util");
+const { userInfo } = require("os");
 const pipeline = promisify(require("stream").pipeline);
 // init
 app.use(express.json());
@@ -175,6 +176,20 @@ app.post(
   }
 );
 
+app.post("/student", (req, res) => {
+  const dataUser = req.body.user_id;
+  db.query(
+    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+        res.send({ dataUser: result });
+      }
+    }
+  );
+});
 // server
 app.listen(3001),
   () => {
