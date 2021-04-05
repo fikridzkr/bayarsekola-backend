@@ -206,6 +206,7 @@ app.get("/admin/student", (req, res) => {
     }
   );
 });
+// get data admin
 app.get("/admin/admindata", (req, res) => {
   db.query("SELECT * FROM users WHERE level = 'admin' ", (err, response) => {
     if (err) {
@@ -215,6 +216,20 @@ app.get("/admin/admindata", (req, res) => {
     console.log(response);
   });
 });
+
+// get data operator
+// app.get("/admin/dataoperators", (req, res) => {
+//   db.query(
+//     "SELECT * FROM users WHERE level = 'operators' ",
+//     (err, response) => {
+//       if (err) {
+//         console.log(err);
+//       }
+//       res.send({ operators: response });
+//       console.log(response);
+//     }
+//   );
+// });
 // server
 app.listen(3001),
   () => {
