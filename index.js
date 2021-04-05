@@ -206,6 +206,15 @@ app.get("/admin/student", (req, res) => {
     }
   );
 });
+app.get("/admin/admindata", (req, res) => {
+  db.query("SELECT * FROM users WHERE level = 'admin' ", (err, response) => {
+    if (err) {
+      console.log(err);
+    }
+    res.send({ admin: response });
+    console.log(response);
+  });
+});
 // server
 app.listen(3001),
   () => {
