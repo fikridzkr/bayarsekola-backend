@@ -145,7 +145,7 @@ app.post(
     const jenis_kelamin = req.body.jenis_kelamin;
     await pipeline(
       file.stream,
-      fs.createWriteStream(`${__dirname}/public/images/${fotoName}`)
+      fs.createWriteStream(`../client/public/cache/${fotoName}`)
     );
     res.send("File uploaded as " + fotoName);
 
@@ -179,7 +179,7 @@ app.post(
 app.post("/student", (req, res) => {
   const dataUser = req.body.user_id;
   db.query(
-    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id`,
+    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE user_id = ${dataUser}`,
     (err, result) => {
       if (err) {
         console.log(err);
@@ -187,6 +187,22 @@ app.post("/student", (req, res) => {
         console.log(result);
         res.send({ dataUser: result });
       }
+    }
+  );
+});
+
+// admin
+
+// get data siswa
+app.get("/admin/student", (req, res) => {
+  db.query(
+    "SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id",
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ siswa: response });
+      console.log(response);
     }
   );
 });
