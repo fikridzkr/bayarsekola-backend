@@ -143,6 +143,7 @@ app.post(
     const kelas = req.body.kelas;
     const jurusan = req.body.jurusan;
     const jenis_kelamin = req.body.jenis_kelamin;
+    const jumlah = req.body.jumlah;
     await pipeline(
       file.stream,
       fs.createWriteStream(`../client/public/cache/${fotoName}`)
@@ -162,6 +163,19 @@ app.post(
       }
     );
 
+    for (let i = 1; i <= 12; i++) {
+      db.query(
+        "INSERT INTO spp_siswa (user_id,bulan_id,jumlah) VALUES (?,?,?)",
+        [user_id, i, jumlah],
+        function (err, res) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("datainsert : ", res);
+          }
+        }
+      );
+    }
     // update active user
     db.query(
       `UPDATE users SET is_Active = '${is_active}' WHERE id = '${user_id}'`,
@@ -230,6 +244,18 @@ app.get("/admin/admindata", (req, res) => {
 //     }
 //   );
 // });
+
+// Get bulan
+app.get("/bulan", (req, res) => {
+  db.query("SELECT * FROM bulan", (err, response) => {
+    if (err) {
+      console.log(err);
+    }
+    res.send({ bulan: response });
+    console.log(response);
+  });
+});
+
 // server
 app.listen(3001),
   () => {
