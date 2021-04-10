@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "PUT", "POST"],
     credentials: true,
   })
 );
@@ -193,7 +193,7 @@ app.post(
 app.post("/student", (req, res) => {
   const dataUser = req.body.user_id;
   db.query(
-    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE user_id = ${dataUser}`,
+    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE user_id = '${dataUser}'`,
     (err, result) => {
       if (err) {
         console.log(err);
@@ -205,8 +205,79 @@ app.post("/student", (req, res) => {
   );
 });
 
-// admin
+app.put(
+  "/student/update",
+  upload.single("foto"),
+  async function (req, res, next) {
+    console.log(req.body);
+    const {
+      file,
+      body: { name },
+    } = req;
+    // if (file.detectedFileExtension != ".jpg")
+    //   next(new Error("Invalid File Type"));
+    const user_id = req.body.user_id;
+    const fotoName =
+      Math.floor(Math.random() * 100000).toString() +
+      file.detectedFileExtension;
+    const nis = req.body.nis;
+    const nama = req.body.nama;
+    const kelas = req.body.kelas;
+    const jurusan = req.body.jurusan;
+    const jenis_kelamin = req.body.jenis_kelamin;
+    await pipeline(
+      file.stream,
+      fs.createWriteStream(`../client/public/cache/${fotoName}`)
+    );
+    res.send("File uploaded as " + fotoName);
 
+    // update data student
+    db.query(
+      `UPDATE siswa SET foto = '${fotoName}', nis = '${nis}', nama = '${nama}', id_kelas = '${kelas}', jurusan = '${jurusan}', jenis_kelamin = '${jenis_kelamin}' WHERE user_id = ${user_id} `,
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result);
+        }
+      }
+    );
+  }
+);
+
+// get activeuser
+app.post("/studentstatus", (req, res) => {
+  const username = req.body.user;
+  console.log(req.body.user);
+  db.query(
+    `SELECT is_active FROM users WHERE username = '${username}'`,
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(response);
+      res.send({ response });
+    }
+  );
+});
+
+// get tabel spp_siswa
+app.post("/bills/user", (req, res) => {
+  const dataUser = req.body.user_id;
+  console.log(req.body);
+  db.query(
+    `SELECT * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE user_id = '${dataUser}' LIMIT 12`,
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(response);
+      res.send({ sppSiswa: response });
+    }
+  );
+});
+
+// admin
 // get data siswa
 app.get("/admin/student", (req, res) => {
   db.query(
