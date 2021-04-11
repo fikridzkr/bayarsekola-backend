@@ -119,76 +119,55 @@ app.get("/kelas", (req, res) => {
   });
 });
 
-app.post(
-  "/datastudent",
-  upload.single("foto"),
-  async function (req, res, next) {
-    console.log(req.body);
-    const {
-      file,
-      body: { name },
-    } = req;
-    if (!req.file) {
-      console.log("foto tidak ada");
-    }
-    if (file.detectedFileExtension != ".jpg")
-      next(new Error("Invalid File Type"));
-    const is_active = req.body.is_active;
-    const user_id = req.body.user_id;
-    const fotoName =
-      Math.floor(Math.random() * 100000).toString() +
-      file.detectedFileExtension;
-    const nis = req.body.nis;
-    const nama = req.body.nama;
-    const kelas = req.body.kelas;
-    const jurusan = req.body.jurusan;
-    const jenis_kelamin = req.body.jenis_kelamin;
-    const jumlah = req.body.jumlah;
-    await pipeline(
-      file.stream,
-      fs.createWriteStream(`../client/public/cache/${fotoName}`)
-    );
-    res.send("File uploaded as " + fotoName);
+app.post("/datastudent", (req, res) => {
+  console.log(req.body);
 
-    // insert data siswa
-    db.query(
-      "INSERT INTO siswa (user_id,foto,nis,nama,id_kelas,jurusan,jenis_kelamin) VALUES (?,?,?,?,?,?,?)",
-      [user_id, fotoName, nis, nama, kelas, jurusan, jenis_kelamin],
-      function (err, res) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("data insert: ", res);
-        }
+  const is_active = req.body.is_active;
+  const user_id = req.body.user_id;
+  const nis = req.body.nis;
+  const nama = req.body.nama;
+  const kelas = req.body.kelas;
+  const jurusan = req.body.jurusan;
+  const jenis_kelamin = req.body.jenis_kelamin;
+  const jumlah = req.body.jumlah;
+  // insert data siswa
+  db.query(
+    "INSERT INTO siswa (user_id,nis,nama,id_kelas,jurusan,jenis_kelamin) VALUES (?,?,?,?,?,?)",
+    [user_id, nis, nama, kelas, jurusan, jenis_kelamin],
+    function (err, res) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("data insert: ", res);
       }
-    );
-
-    for (let i = 1; i <= 12; i++) {
-      db.query(
-        "INSERT INTO spp_siswa (user_id,bulan_id,jumlah) VALUES (?,?,?)",
-        [user_id, i, jumlah],
-        function (err, res) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("datainsert : ", res);
-          }
-        }
-      );
     }
-    // update active user
+  );
+
+  for (let i = 1; i <= 12; i++) {
     db.query(
-      `UPDATE users SET is_Active = '${is_active}' WHERE id = '${user_id}'`,
+      "INSERT INTO spp_siswa (user_id,bulan_id,jumlah) VALUES (?,?,?)",
+      [user_id, i, jumlah],
       function (err, res) {
         if (err) {
           console.log(err);
         } else {
-          console.log("data update: ", res);
+          console.log("datainsert : ", res);
         }
       }
     );
   }
-);
+  // update active user
+  db.query(
+    `UPDATE users SET is_Active = '${is_active}' WHERE id = '${user_id}'`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("data update: ", res);
+      }
+    }
+  );
+});
 
 app.post("/student", (req, res) => {
   const dataUser = req.body.user_id;
@@ -205,45 +184,28 @@ app.post("/student", (req, res) => {
   );
 });
 
-app.put(
-  "/student/update",
-  upload.single("foto"),
-  async function (req, res, next) {
-    console.log(req.body);
-    const {
-      file,
-      body: { name },
-    } = req;
-    // if (file.detectedFileExtension != ".jpg")
-    //   next(new Error("Invalid File Type"));
-    const user_id = req.body.user_id;
-    const fotoName =
-      Math.floor(Math.random() * 100000).toString() +
-      file.detectedFileExtension;
-    const nis = req.body.nis;
-    const nama = req.body.nama;
-    const kelas = req.body.kelas;
-    const jurusan = req.body.jurusan;
-    const jenis_kelamin = req.body.jenis_kelamin;
-    await pipeline(
-      file.stream,
-      fs.createWriteStream(`../client/public/cache/${fotoName}`)
-    );
-    res.send("File uploaded as " + fotoName);
+app.put("/student/update", (req, res) => {
+  console.log(req.body);
 
-    // update data student
-    db.query(
-      `UPDATE siswa SET foto = '${fotoName}', nis = '${nis}', nama = '${nama}', id_kelas = '${kelas}', jurusan = '${jurusan}', jenis_kelamin = '${jenis_kelamin}' WHERE user_id = ${user_id} `,
-      (err, result) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(result);
-        }
+  const user_id = req.body.user_id;
+  const nis = req.body.nis;
+  const nama = req.body.nama;
+  const kelas = req.body.kelas;
+  const jurusan = req.body.jurusan;
+  const jenis_kelamin = req.body.jenis_kelamin;
+
+  // update data student
+  db.query(
+    `UPDATE siswa SET nis = '${nis}', nama = '${nama}', id_kelas = '${kelas}', jurusan = '${jurusan}', jenis_kelamin = '${jenis_kelamin}' WHERE user_id = ${user_id} `,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
       }
-    );
-  }
-);
+    }
+  );
+});
 
 // get activeuser
 app.post("/studentstatus", (req, res) => {
@@ -325,6 +287,13 @@ app.get("/bulan", (req, res) => {
     res.send({ bulan: response });
     console.log(response);
   });
+});
+
+//operators
+app.get("operators/statuspayment", (req, res) => {
+  db.query(
+    'SELECT * FROM spp_siswa INNER JOIN users ON spp_siswa.user_id = users.id WHERE keterangan = "Sedang Diproses"'
+  );
 });
 
 // server
