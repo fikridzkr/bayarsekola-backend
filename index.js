@@ -239,6 +239,28 @@ app.post("/bills/user", (req, res) => {
   );
 });
 
+// changepassword
+app.put("/student/changepassword", (req, res) => {
+  console.log(req.body);
+  const newPassword = req.body.newPassword;
+  const userId = req.body.user_id;
+  bcrypt.hash(newPassword, saltRounds, (err, hash) => {
+    if (err) {
+      console.log(err);
+    }
+    db.query(
+      `UPDATE users SET password = '${hash}' WHERE id = '${userId}'`,
+      function (err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("password update", res);
+        }
+      }
+    );
+  });
+});
+
 // admin
 // get data siswa
 app.get("/admin/student", (req, res) => {
