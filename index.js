@@ -14,14 +14,14 @@ const { promisify } = require("util");
 const { userInfo } = require("os");
 const pipeline = promisify(require("stream").pipeline);
 // init
-app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "PUT", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -275,6 +275,7 @@ app.get("/admin/student", (req, res) => {
     }
   );
 });
+
 // get data admin
 app.get("/admin/admindata", (req, res) => {
   db.query("SELECT * FROM users WHERE level = 'admin' ", (err, response) => {
@@ -283,6 +284,18 @@ app.get("/admin/admindata", (req, res) => {
     }
     res.send({ admin: response });
     console.log(response);
+  });
+});
+
+// delete data admin
+app.delete("/admin/delete/:id", (req, res) => {
+  const id = req.params.id;
+  db.query(`DELETE FROM users WHERE id = ?`, id, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
   });
 });
 
@@ -316,6 +329,16 @@ app.get("operators/statuspayment", (req, res) => {
   db.query(
     'SELECT * FROM spp_siswa INNER JOIN users ON spp_siswa.user_id = users.id WHERE keterangan = "Sedang Diproses"'
   );
+});
+
+app.post("/logout", (req, res) => {
+  req.session.destroy(() => {
+    if (req.body.userStatus) {
+      res.send({ loggedIn: false });
+    }
+  });
+
+  console.log(req.body);
 });
 
 // server
