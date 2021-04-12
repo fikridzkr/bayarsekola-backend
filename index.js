@@ -240,7 +240,7 @@ app.post("/bills/user", (req, res) => {
 });
 
 // changepassword
-app.put("/student/changepassword", (req, res) => {
+app.put("/changepassword", (req, res) => {
   console.log(req.body);
   const newPassword = req.body.newPassword;
   const userId = req.body.user_id;
