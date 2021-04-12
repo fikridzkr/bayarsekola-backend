@@ -300,18 +300,30 @@ app.delete("/admin/delete/:id", (req, res) => {
 });
 
 // get data operator
-// app.get("/admin/dataoperators", (req, res) => {
-//   db.query(
-//     "SELECT * FROM users WHERE level = 'operators' ",
-//     (err, response) => {
-//       if (err) {
-//         console.log(err);
-//       }
-//       res.send({ operators: response });
-//       console.log(response);
-//     }
-//   );
-// });
+app.get("/admin/dataoperators", (req, res) => {
+  db.query(
+    "SELECT * FROM users WHERE level = 'operators' ",
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ operators: response });
+      console.log(response);
+    }
+  );
+});
+
+// delete data operator
+app.delete("/operators/delete/:id", (req, res) => {
+  const id = req.params.id;
+  db.query(`DELETE FROM users WHERE id = ?`, id, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
 
 // Get bulan
 app.get("/bulan", (req, res) => {
