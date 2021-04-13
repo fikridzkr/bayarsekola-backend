@@ -13,6 +13,7 @@ const fs = require("fs");
 const { promisify } = require("util");
 const { userInfo } = require("os");
 const pipeline = promisify(require("stream").pipeline);
+const moment = require("moment");
 // init
 app.use(
   cors({
@@ -259,6 +260,40 @@ app.put("/changepassword", (req, res) => {
       }
     );
   });
+});
+
+// sppsiswa
+app.put("/sppsiswa", upload.single("bukti"), async function (req, res, next) {
+  const {
+    file,
+    body: { name },
+  } = req;
+
+  if (file.detectedFileExtension != ".jpg")
+    next(new Error("Invalid File Type"));
+
+  const fileName =
+    Math.floor(Math.random() * 1000000) + file.detectedFileExtension;
+  const userId = req.body.user_id;
+  const bulan = req.body.bulan;
+  const tanggalBayar = moment().utc().format("YYYY:MM:DD");
+  const keterangan = "Sedang Diproses";
+  await pipeline(
+    file.stream,
+    fs.createWriteStream(`../client/public/cache/${fileName}`)
+  );
+  res.send("File Uploaded as" + fileName);
+
+  db.query(
+    `UPDATE spp_siswa SET tanggal_bayar = '${tanggalBayar}',bukti_pembayaran = '${fileName}', keterangan = '${keterangan}' WHERE user_id = '${userId}' AND bulan_id = ${bulan}`,
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("data insert");
+      }
+    }
+  );
 });
 
 // admin
