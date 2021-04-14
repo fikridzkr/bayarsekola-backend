@@ -121,8 +121,6 @@ app.get("/kelas", (req, res) => {
 });
 
 app.post("/datastudent", (req, res) => {
-  console.log(req.body);
-
   const is_active = req.body.is_active;
   const user_id = req.body.user_id;
   const nis = req.body.nis;
@@ -186,8 +184,6 @@ app.post("/student", (req, res) => {
 });
 
 app.put("/student/update", (req, res) => {
-  console.log(req.body);
-
   const user_id = req.body.user_id;
   const nis = req.body.nis;
   const nama = req.body.nama;
@@ -211,7 +207,6 @@ app.put("/student/update", (req, res) => {
 // get activeuser
 app.post("/studentstatus", (req, res) => {
   const username = req.body.user;
-  console.log(req.body.user);
   db.query(
     `SELECT is_active FROM users WHERE username = '${username}'`,
     (err, response) => {
@@ -227,7 +222,6 @@ app.post("/studentstatus", (req, res) => {
 // get tabel spp_siswa
 app.post("/bills/user", (req, res) => {
   const dataUser = req.body.user_id;
-  console.log(req.body);
   db.query(
     `SELECT * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE user_id = '${dataUser}' LIMIT 12`,
     (err, response) => {
@@ -242,7 +236,6 @@ app.post("/bills/user", (req, res) => {
 
 // changepassword
 app.put("/changepassword", (req, res) => {
-  console.log(req.body);
   const newPassword = req.body.newPassword;
   const userId = req.body.user_id;
   bcrypt.hash(newPassword, saltRounds, (err, hash) => {
@@ -278,7 +271,6 @@ app.put("/sppsiswa", upload.single("bukti"), async function (req, res, next) {
   const bulan = req.body.bulan;
 
   const tanggalBayar = moment().format();
-  console.log(tanggalBayar);
   const keterangan = "Sedang Diproses";
   await pipeline(
     file.stream,
@@ -363,14 +355,18 @@ app.delete("/operators/delete/:id", (req, res) => {
 });
 
 // Get bulan
-app.get("/bulan", (req, res) => {
-  db.query("SELECT * FROM bulan", (err, response) => {
-    if (err) {
-      console.log(err);
+app.post("/bulan", (req, res) => {
+  const userId = req.body.user_id;
+  db.query(
+    `SELECT bulan_id, bulan,tahun FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE user_id = '${userId}' AND keterangan = 'Belum Bayar'`,
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ bulan: response });
+      console.log(response);
     }
-    res.send({ bulan: response });
-    console.log(response);
-  });
+  );
 });
 
 //operators
@@ -386,8 +382,6 @@ app.post("/logout", (req, res) => {
       res.send({ loggedIn: false });
     }
   });
-
-  console.log(req.body);
 });
 
 // server
