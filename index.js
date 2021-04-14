@@ -276,7 +276,9 @@ app.put("/sppsiswa", upload.single("bukti"), async function (req, res, next) {
     Math.floor(Math.random() * 1000000) + file.detectedFileExtension;
   const userId = req.body.user_id;
   const bulan = req.body.bulan;
-  const tanggalBayar = moment().utc().format("YYYY:MM:DD");
+
+  const tanggalBayar = moment().format();
+  console.log(tanggalBayar);
   const keterangan = "Sedang Diproses";
   await pipeline(
     file.stream,
@@ -290,7 +292,7 @@ app.put("/sppsiswa", upload.single("bukti"), async function (req, res, next) {
       if (err) {
         console.log(err);
       } else {
-        console.log("data insert");
+        console.log("data insert", response);
       }
     }
   );
