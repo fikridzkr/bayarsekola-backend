@@ -305,6 +305,44 @@ app.get("/admin/student", (req, res) => {
   );
 });
 
+// get count users
+app.get("/admin/countadmin", (req, res) => {
+  db.query(
+    "SELECT COUNT(*) AS AdminCount FROM `users` WHERE level = 'admin' ",
+    (err, admin) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ admin });
+      console.log(admin);
+    }
+  );
+});
+app.get("/admin/countoperators", (req, res) => {
+  db.query(
+    "SELECT COUNT(*) AS OperatorsCount FROM `users` WHERE level = 'operators' ",
+    (err, operators) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ operators });
+      console.log(operators);
+    }
+  );
+});
+app.get("/admin/countstudents", (req, res) => {
+  db.query(
+    "SELECT COUNT(*) AS StudentsCount  FROM `users` WHERE level = 'students' ",
+    (err, students) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ students });
+      console.log(students);
+    }
+  );
+});
+
 // get data admin
 app.get("/admin/admindata", (req, res) => {
   db.query("SELECT * FROM users WHERE level = 'admin' ", (err, response) => {
