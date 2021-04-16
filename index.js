@@ -376,6 +376,32 @@ app.get("operators/statuspayment", (req, res) => {
   );
 });
 
+app.post("/searchnis/datasiswa", (req, res) => {
+  const valueNis = req.body.valueNis;
+  db.query(
+    `SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE nis = '${valueNis}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ dataSiswa: result });
+    }
+  );
+});
+
+app.post("/searchnis/sppsiswa", (req, res) => {
+  const userId = req.body.userId;
+  db.query(
+    `SELECT * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE user_id = '${userId}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ sppSiswa: result });
+    }
+  );
+});
+
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     if (req.body.userStatus) {
