@@ -440,6 +440,19 @@ app.post("/searchnis/sppsiswa", (req, res) => {
   );
 });
 
+// get data siswa - operator
+app.get("/operators/datasiswa", (req, res) => {
+  db.query(
+    "SELECT * FROM siswa INNER JOIN kelas ON siswa.id_kelas = kelas.id",
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ siswa: result });
+    }
+  );
+});
+
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     if (req.body.userStatus) {
