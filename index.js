@@ -453,6 +453,19 @@ app.get("/operators/datasiswa", (req, res) => {
   );
 });
 
+// get data spp siswa
+app.get("/operators/sppsiswa", (req, res) => {
+  db.query(
+    'select * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE keterangan = "Sedang Diproses" ',
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send({ sppSiswa: result });
+    }
+  );
+});
+
 app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     if (req.body.userStatus) {
