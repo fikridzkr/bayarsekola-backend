@@ -45,7 +45,7 @@ const db = mysql.createConnection({
   database: "bayarsekola",
 });
 
-// create user
+// register user
 app.post("/register", (req, res) => {
   const username = req.body.username;
   const email = req.body.email;
@@ -71,7 +71,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-// login get
+// get session login
 app.get("/login", (req, res) => {
   if (req.session.user) {
     res.send({ loggedIn: true, user: req.session.user });
@@ -109,7 +109,7 @@ app.post("/login", (req, res) => {
   );
 });
 
-// kelas
+// get data kelas
 app.get("/kelas", (req, res) => {
   db.query("SELECT * FROM kelas", (err, response) => {
     if (err) {
@@ -120,6 +120,7 @@ app.get("/kelas", (req, res) => {
   });
 });
 
+// register step 2
 app.post("/datastudent", (req, res) => {
   const is_active = req.body.is_active;
   const user_id = req.body.user_id;
@@ -155,7 +156,6 @@ app.post("/datastudent", (req, res) => {
       }
     );
   }
-  // update active user
   db.query(
     `UPDATE users SET is_Active = '${is_active}' WHERE id = '${user_id}'`,
     function (err, res) {
@@ -168,6 +168,7 @@ app.post("/datastudent", (req, res) => {
   );
 });
 
+// get data siswa berdasarkan user id
 app.post("/student", (req, res) => {
   const dataUser = req.body.user_id;
   db.query(
@@ -183,6 +184,7 @@ app.post("/student", (req, res) => {
   );
 });
 
+// update data student
 app.put("/student/update", (req, res) => {
   const user_id = req.body.user_id;
   const nis = req.body.nis;
@@ -191,7 +193,6 @@ app.put("/student/update", (req, res) => {
   const jurusan = req.body.jurusan;
   const jenis_kelamin = req.body.jenis_kelamin;
 
-  // update data student
   db.query(
     `UPDATE siswa SET nis = '${nis}', nama = '${nama}', id_kelas = '${kelas}', jurusan = '${jurusan}', jenis_kelamin = '${jenis_kelamin}' WHERE user_id = ${user_id} `,
     (err, result) => {
@@ -305,7 +306,7 @@ app.get("/admin/student", (req, res) => {
   );
 });
 
-// get count users
+// get count admin
 app.get("/admin/countadmin", (req, res) => {
   db.query(
     "SELECT COUNT(*) AS AdminCount FROM `users` WHERE level = 'admin' ",
@@ -318,6 +319,7 @@ app.get("/admin/countadmin", (req, res) => {
     }
   );
 });
+// get count operator
 app.get("/admin/countoperators", (req, res) => {
   db.query(
     "SELECT COUNT(*) AS OperatorsCount FROM `users` WHERE level = 'operators' ",
@@ -330,6 +332,7 @@ app.get("/admin/countoperators", (req, res) => {
     }
   );
 });
+// getcount student
 app.get("/admin/countstudents", (req, res) => {
   db.query(
     "SELECT COUNT(*) AS StudentsCount  FROM `users` WHERE level = 'students' ",
@@ -462,6 +465,36 @@ app.get("/operators/sppsiswa", (req, res) => {
         console.log(err);
       }
       res.send({ sppSiswa: result });
+    }
+  );
+});
+
+// terima pembayaran
+app.put("/operators/receivepayment", (req, res) => {
+  const userId = req.body.userId;
+  const bulanId = req.body.bulanId;
+  db.query(
+    `UPDATE spp_siswa SET keterangan = 'Sudah Bayar' WHERE user_id = ${userId} AND bulan_id = ${bulanId}`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("data update  : ", result);
+    }
+  );
+});
+
+// terima pembayaran
+app.put("/operators/declinepayment", (req, res) => {
+  const userId = req.body.userId;
+  const bulanId = req.body.bulanId;
+  db.query(
+    `UPDATE spp_siswa SET tanggal_bayar = null, bukti_pembayaran = null, keterangan = 'Belum Bayar' WHERE user_id = ${userId} AND bulan_id = ${bulanId}`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("data update  : ", result);
     }
   );
 });
