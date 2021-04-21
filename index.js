@@ -122,42 +122,51 @@ app.get("/kelas", (req, res) => {
 
 // register step 2
 app.post("/datastudent", (req, res) => {
-  const is_active = req.body.is_active;
-  const user_id = req.body.user_id;
+  const isActive = req.body.is_active;
+  const userId = req.body.user_id;
   const nis = req.body.nis;
   const nama = req.body.nama;
   const kelas = req.body.kelas;
   const jurusan = req.body.jurusan;
-  const jenis_kelamin = req.body.jenis_kelamin;
+  const jenisKelamin = req.body.jenis_kelamin;
   const jumlah = req.body.jumlah;
-  // insert data siswa
+  // // insert data siswa
   db.query(
     "INSERT INTO siswa (user_id,nis,nama,id_kelas,jurusan,jenis_kelamin) VALUES (?,?,?,?,?,?)",
-    [user_id, nis, nama, kelas, jurusan, jenis_kelamin],
+    [userId, nis, nama, kelas, jurusan, jenisKelamin],
     function (err, res) {
       if (err) {
         console.log(err);
       } else {
-        console.log("data insert: ", res);
+        console.log("data insert", res);
       }
     }
   );
 
-  for (let i = 1; i <= 12; i++) {
-    db.query(
-      "INSERT INTO spp_siswa (user_id,bulan_id,jumlah) VALUES (?,?,?)",
-      [user_id, i, jumlah],
-      function (err, res) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("datainsert : ", res);
-        }
-      }
-    );
-  }
   db.query(
-    `UPDATE users SET is_Active = '${is_active}' WHERE id = '${user_id}'`,
+    "SELECT * FROM siswa WHERE user_id = ? ",
+    [userId],
+    (err, result) => {
+      let idSiswa = result[0].id;
+
+      for (let i = 1; i <= 12; i++) {
+        db.query(
+          "INSERT INTO spp_siswa (user_id,siswa_id,bulan_id,jumlah) VALUES (?,?,?,?)",
+          [userId, idSiswa, i, jumlah],
+          function (err, res) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("datainsert : ", res);
+            }
+          }
+        );
+      }
+    }
+  );
+
+  db.query(
+    `UPDATE users SET is_Active = '${isActive}' WHERE id = '${userId}'`,
     function (err, res) {
       if (err) {
         console.log(err);
@@ -459,7 +468,7 @@ app.get("/operators/datasiswa", (req, res) => {
 // get data spp siswa
 app.get("/operators/sppsiswa", (req, res) => {
   db.query(
-    'select * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id WHERE keterangan = "Sedang Diproses" ',
+    'select * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id INNER JOIN siswa ON spp_siswa.siswa_id = siswa.id INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE keterangan = "Sedang Diproses" ',
     (err, result) => {
       if (err) {
         console.log(err);
@@ -497,6 +506,16 @@ app.put("/operators/declinepayment", (req, res) => {
       console.log("data update  : ", result);
     }
   );
+});
+
+app.get("/operators/datastudents", (req, res) => {
+  db.query("SELECT * FROM siswa", (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+
+    res.send({ dataSiswa: result });
+  });
 });
 
 app.post("/logout", (req, res) => {
