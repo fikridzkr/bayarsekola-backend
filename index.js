@@ -518,12 +518,11 @@ app.get("/operators/datastudents", (req, res) => {
   });
 });
 
-app.post("/logout", (req, res) => {
-  req.session.destroy(() => {
-    if (req.body.userStatus) {
-      res.send({ loggedIn: false });
-    }
-  });
+app.get("/logout", (req, res) => {
+  if (req.session.user && req.cookies.userId) {
+    res.clearCookie("userId");
+    res.send({ loggedIn: false });
+  }
 });
 
 // server
