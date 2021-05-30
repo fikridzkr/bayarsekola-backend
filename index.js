@@ -533,6 +533,25 @@ app.get('/operators/reportdaily', (req, res) => {
   );
 });
 
+app.post('/operators/totalreport', (req, res) => {
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
+  db.query(
+    `SELECT * FROM spp_siswa INNER JOIN bulan ON spp_siswa.bulan_id = bulan.id INNER JOIN siswa ON spp_siswa.siswa_id = siswa.id INNER JOIN kelas ON siswa.id_kelas = kelas.id WHERE tanggal_bayar BETWEEN '${moment(
+      startDate,
+    ).format('YYYY-MM-DD')}' AND '${moment(endDate).format(
+      'YYYY-MM-DD',
+    )}' AND keterangan = 'sudah bayar' `,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(result);
+      res.send({ laporanBayar: result });
+    },
+  );
+});
+
 app.get('/logout', (req, res) => {
   if (req.session.user && req.cookies.userId) {
     res.clearCookie('userId');
